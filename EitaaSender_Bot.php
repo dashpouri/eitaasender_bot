@@ -25,10 +25,10 @@
  * در 3 خط کد زیر وارد کنید
  */
 
-    $bot_url    = "https://api.telegram.org/bot1024488311:AAGT0jysxNJ30BWeS5JxaMCrO6N3sQTHLIU";
-    $bot_dl_url = "https://api.telegram.org/file/bot1024488311:AAGT0jysxNJ30BWeS5JxaMCrO6N3sQTHLIU";
-    $et_bot_url = "https://eitaayar.ir/api/bot88:107683e8-c826-4aa3-85c8-eff27ace99db";
-    $et_chat_id = '9316';
+    $bot_url    = "https://api.telegram.org/bot[توکن ربات تلگرام]";
+    $bot_dl_url = "https://api.telegram.org/file/bot[توکن ربات تلگرام]";
+    $et_bot_url = "https://eitaayar.ir/api/bot[توکن شما در سایت ایتایار]";
+    $et_chat_id = '[شناسه عددی کانال در سایت ایتایار جهت انتقال محتوا]';
 
     $update = file_get_contents("php://input");
     $update_array = json_decode($update, true);
@@ -86,7 +86,7 @@
     // ارسال پیام
     function send_message()
     {
-      // نمایش پیغام با اولین
+      // نمایش پیغام با شروع ربات
       if($GLOBALS['text'] == "/start")
       {
         // نمایش پیام هنگام شروع ربات
@@ -125,7 +125,7 @@
 
     // ذخیره فایل ها
     function save_file() {
-      if ($message_file_size < 21000000) { //20mb
+      if ($message_file_size < 21000000) { //20 MB
         $update_array = $GLOBALS['update_array'];
 
         $url = $GLOBALS['bot_url'] . "/getFile";
@@ -380,7 +380,7 @@
         return $result;
     }
 
-    // ارسال اطلاعات به سرور ایتا به روش کرل
+    // ارسال اطلاعات به سرور ایتا با روش کرل
     function send_to_eitaa($url , $post_params) {
         $cu  = curl_init();
         curl_setopt($cu, CURLOPT_URL, $url);
@@ -394,7 +394,7 @@
         else {return json_decode($result);}
     }
 
-    // ارسال پاسخ به کاربر
+    // ارسال پاسخ به کاربر در تلگرام
     function show_reply($reply) {
       $reply;
       $url = $GLOBALS['bot_url'] . "/sendMessage";
