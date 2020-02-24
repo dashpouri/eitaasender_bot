@@ -2,7 +2,7 @@
 
 /**
  * نمونه ربات ساده انتقال محتوا از تلگرام به ایتا.
- * نسخه 1.0
+ * نسخه 1.1
  *
  * کپی رایت - 2020 - پوریا ب
  *
@@ -15,7 +15,7 @@
  * @license   https://opensource.org/licenses/AGPL-3.0 AGPLv3
  *
  * @link https://eitaa.com/Anonymous_Devz ارتباط با برنامه نویس در پیامرسان ایتا
- * @link https://t.me/eitaasender_bot     آیدی ربات نمونه انتقال محتوا در تلگرام
+ * @link https://t.me/EitaaSender_Bot     آیدی ربات نمونه انتقال محتوا در تلگرام
  *
  * راهنما
  * این سورس رو در یک هاست آپلود کنید و کنار این فایل یک پوشه با نام
@@ -103,19 +103,21 @@
       else if ($GLOBALS['text'])
       {
         // انتقال متن ارسالی به ایتا
+        $t = time();
         $url         = $GLOBALS['et_bot_url'] . "/sendMessage";
         $post_params = [
           'chat_id' => $GLOBALS['et_chat_id'] ,
           'text'    => $GLOBALS['text']
         ];
         send_to_eitaa($url, $post_params);
-
+        $time = time()-$t;
+          
         // پاسخ به کاربر در تلگرام
         $url         = $GLOBALS['bot_url'] . "/sendMessage";
         $post_params = [
           'chat_id'             => $GLOBALS['chat_id'] ,
           'reply_to_message_id' => $GLOBALS['message_id'] ,
-          'text'                => "✅ارسال شد"
+          'text'                => "✅متن منتقل شد.\nزمان انتقال: $time ثانیه"
         ];
         send_reply($url, $post_params);
       }
@@ -125,7 +127,7 @@
 
     // ذخیره فایل ها
     function save_file() {
-      if ($message_file_size < 20971520) { //20 MB
+      if ($GLOBALS['message_file_size'] < 20971520) { //20 MB
         $update_array = $GLOBALS['update_array'];
 
         $url = $GLOBALS['bot_url'] . "/getFile";
@@ -134,7 +136,9 @@
 
         $result_array = json_decode($result, true);
         $file_path    = $result_array["result"]["file_path"];
-
+        
+        $t = time();
+          
         $url = $GLOBALS['bot_dl_url'] . "/$file_path";
         $file_data = file_get_contents($url);
 
@@ -142,8 +146,6 @@
         $my_file   = fopen($file_path, 'w');
         fwrite($my_file, $file_data);
         fclose($my_file);
-
-        show_reply("✅فایل شما با موفقیت آپلود شد و به زودی منتقل میشود");
 
         // ارسال فایل به ایتا
         $url     = $GLOBALS['et_bot_url'] . "/sendFile";
@@ -153,6 +155,10 @@
           'caption' => $GLOBALS['message_caption']
         ];
         send_to_eitaa($url, $post_params);
+          
+        $time = time()-$t;
+          
+        show_reply("✅فایل منتقل شد.\n⌛️زمان انتقال: $time ثانیه");
 
         unlink($file_path); // حذف فایل بعد از انتقال
 
@@ -167,8 +173,9 @@
     //-------------------------------------
 
     // ذخیره موسیقی
-    function save_audio() {
-      if ($GLOBALS['message_audio_size'] < 20971520) {
+    function save_audio() 
+    {
+      if ($GLOBALS['message_audio_size'] < 20971520) { // 20 MB
         $update_array = $GLOBALS['update_array'];
 
         $url = $GLOBALS['bot_url'] . "/getFile";
@@ -177,7 +184,9 @@
 
         $result_array = json_decode($result, true);
         $file_path    = $result_array["result"]["file_path"];
-
+        
+        $t = time();
+          
         $url = $GLOBALS['bot_dl_url'] . "/$file_path";
         $file_data = file_get_contents($url);
 
@@ -185,8 +194,6 @@
         $my_file  = fopen($img_path, 'w');
         fwrite($my_file, $file_data);
         fclose($my_file);
-
-        show_reply("✅موسیقی با موفقیت آپلود شد و به زودی منتقل میشود");
 
         // ارسال موسیقی به ایتا
         $url         = $GLOBALS['et_bot_url'] . "/sendFile";
@@ -196,6 +203,10 @@
           'caption'   => $GLOBALS['message_caption']
         ];
         send_to_eitaa($url, $post_params);
+         
+        $time = time()-$t;
+        
+        show_reply("✅موسیقی منتقل شد.\n⌛️زمان انتقال: $time ثانیه");
 
         unlink($GLOBALS['message_audio_title']); // حذف موسیقی بعد از انتقال
       }
@@ -209,8 +220,9 @@
     //-------------------------------------
 
     // ذخیره پیام صوتی
-    function save_voice() {
-      if ($GLOBALS['message_voice_size'] < 20971520) {
+    function save_voice() 
+    {
+      if ($GLOBALS['message_voice_size'] < 20971520) { // 20 MB
         $update_array = $GLOBALS['update_array'];
 
         $url = $GLOBALS['bot_url'] . "/getFile";
@@ -219,7 +231,9 @@
 
         $result_array = json_decode($result, true);
         $file_path    = $result_array["result"]["file_path"];
-
+        
+        $t = time();
+          
         $url = $GLOBALS['bot_dl_url'] . "/$file_path";
         $file_data = file_get_contents($url);
 
@@ -227,9 +241,8 @@
         $my_file  = fopen($voice_path, 'w');
         fwrite($my_file, $file_data);
         fclose($my_file);
-
-        show_reply("✅پیام صوتی با موفقیت آپلود شد و به زودی منتقل میشود");
-
+        
+        // ارسال پیام صوتی به ایتا
         $url         = $GLOBALS['et_bot_url'] . "/sendFile";
         $post_params = [
           'chat_id' => $GLOBALS['et_chat_id'] ,
@@ -237,6 +250,10 @@
           'caption' => $GLOBALS['message_caption']
         ];
         send_to_eitaa($url, $post_params);
+          
+        $time = time()-$t;
+          
+        show_reply("✅پیام صوتی منتقل شد.\n⌛️زمان انتقال: $time ثانیه");
 
         unlink($voice_path); // حذف پیام صوتی بعد از انتقال
       }
@@ -250,8 +267,9 @@
     //-------------------------------------
 
     // ذخیره ویدیو
-    function save_video() {
-      if ($GLOBALS['message_video_size'] < 20971520) {
+    function save_video() 
+    {
+      if ($GLOBALS['message_video_size'] < 20971520) { // 20 MB
         $update_array = $GLOBALS['update_array'];
 
         $url = $GLOBALS['bot_url'] . "/getFile";
@@ -260,7 +278,9 @@
 
         $result_array = json_decode($result, true);
         $file_path    = $result_array["result"]["file_path"];
-
+        
+        $t = time();
+          
         $url = $GLOBALS['bot_dl_url'] . "/$file_path";
         $file_data = file_get_contents($url);
 
@@ -268,9 +288,8 @@
         $my_file  = fopen($video_path, 'w');
         fwrite($my_file, $file_data);
         fclose($my_file);
-
-        show_reply("✅ویدیو با موفقیت آپلود شد و به زودی منتقل میشود");
-
+    
+        // ارسال ویدیو به ایتا
         $url         = $GLOBALS['et_bot_url'] . "/sendFile";
         $post_params = [
           'chat_id' => $GLOBALS['et_chat_id'] ,
@@ -278,7 +297,11 @@
           'caption' => $GLOBALS['message_caption']
         ];
         send_to_eitaa($url, $post_params);
-
+        
+        $time = time()-$t;
+          
+        show_reply("✅ویدیو منتقل شد.\n⌛️زمان انتقال: $time ثانیه");
+        
         unlink($video_path); // حذف ویدیو بعد از انتقال
       }
 
@@ -291,7 +314,8 @@
     //-------------------------------------
 
     // ذخیره استیکر
-    function save_sticker() {
+    function save_sticker() 
+    {
       $update_array = $GLOBALS['update_array'];
 
       $url = $GLOBALS['bot_url'] . "/getFile";
@@ -300,7 +324,9 @@
 
       $result_array = json_decode($result, true);
       $file_path    = $result_array["result"]["file_path"];
-
+      
+      $t = time();
+       
       $url = $GLOBALS['bot_dl_url'] . "/$file_path";
       $file_data = file_get_contents($url);
 
@@ -308,15 +334,18 @@
       $my_file  = fopen($sticker_path, 'w');
       fwrite($my_file, $file_data);
       fclose($my_file);
-
-      show_reply("✅استیکر با موفقیت آپلود شد و به زودی منتقل میشود");
-
+      
+      // ارسال استیکر به ایتا
       $url         = $GLOBALS['et_bot_url'] . "/sendFile";
       $post_params = [
         'chat_id' => $GLOBALS['et_chat_id'] ,
         'file'    => new CURLFILE(realpath($sticker_path))
       ];
       send_to_eitaa($url, $post_params);
+        
+      $time = time()-$t;
+        
+      show_reply("✅استیکر منتقل شد.\n⌛️زمان انتقال: $time ثانیه");
 
       unlink($sticker_path); // حذف استیکر بعد از انتقال
     }
@@ -325,9 +354,12 @@
     //-------------------------------------
 
     // ذخیره تصویر
-    function save_photo() {
+    function save_photo() 
+    {
         $update_array = $GLOBALS['update_array'];
+        
         $diff_size_count = sizeof($update_array["message"]["photo"]);
+        
         for($i = $diff_size_count - 1 ; $i >= 0 ; $i--)
         {
             $file_size = $update_array["message"]["photo"][$i]["file_size"];
@@ -353,8 +385,9 @@
         fwrite($my_file, $file_data);
         fclose($my_file);
 
-        show_reply("✅تصویر با موفقیت آپلود شد و به زودی منتقل میشود");
-
+        $t = time();
+        
+        // ارسال تصویر به ایتا
         $url         = $GLOBALS['et_bot_url'] . "/sendFile";
         $post_params = [
           'chat_id' => $GLOBALS['et_chat_id'] ,
@@ -362,6 +395,10 @@
           'caption' => $GLOBALS['message_caption']
         ];
         send_to_eitaa($url, $post_params);
+        
+        $time = time()-$t;
+        
+        show_reply("✅تصویر منتقل شد.\n⌛️زمان انتقال: $time ثانیه");
 
         unlink($img_path); // حذف تصویر بعد از انتقال
     }
@@ -369,8 +406,8 @@
     //-------------------------------------
 
     // ارسال اطلاعات به سرور تلگرام با روش کرل
-    function send_reply($url, $post_params) {
-
+    function send_reply($url, $post_params) 
+    {
         $cu = curl_init();
         curl_setopt($cu, CURLOPT_URL, $url);
         curl_setopt($cu, CURLOPT_POSTFIELDS, $post_params);
@@ -381,7 +418,8 @@
     }
 
     // ارسال اطلاعات به سرور ایتا با روش کرل
-    function send_to_eitaa($url , $post_params) {
+    function send_to_eitaa($url , $post_params) 
+    {
         $cu  = curl_init();
         curl_setopt($cu, CURLOPT_URL, $url);
         curl_setopt($cu, CURLOPT_POSTFIELDS, $post_params);
@@ -395,11 +433,11 @@
     }
 
     // ارسال پاسخ به کاربر در تلگرام
-    function show_reply($reply) {
+    function show_reply($reply) 
+    {
       $reply;
       $url = $GLOBALS['bot_url'] . "/sendMessage";
-      $post_params =
-      [
+      $post_params = [
         'chat_id' => $GLOBALS['chat_id'] ,
         'text'    => $reply ,
         'reply_to_message_id' => $GLOBALS['message_id']
